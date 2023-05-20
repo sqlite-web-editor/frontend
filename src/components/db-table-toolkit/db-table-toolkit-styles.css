@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.shadow-inner-left{
+  @apply shadow-[10px_0_10px_-5px_inset];
+  @apply shadow-gray-700 dark:shadow-gray-950;
+}
+
+.dtk {
+  @apply shadow-inner-left;
+}

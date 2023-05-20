@@ -1,23 +1,22 @@
-import logo from './logo.svg';
 import './App.css';
+import "./index.css";
+import DbTableTookit from './components/db-table-toolkit/db-table-toolkit';
+import FetchDbWindow from './components/fetch-db-window/fetch-db-window';
+
 
 function App() {
   return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+    <div className='w-full h-full'>
+      <div className='flex flex-col pt-4 lg:pt-12 justify-center items-center space-y-12'>
+        <div className='w-full lg:w-fit'>
+          <div className='flex flex-col lg:flex-row w-full justify-center space-y-4 lg:space-y-0 lg:space-x-4'>
+            <FetchDbWindow/>
+            <div className='w-full'>
+              <DbTableTookit/>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
