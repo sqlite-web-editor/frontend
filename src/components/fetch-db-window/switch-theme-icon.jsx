@@ -11,7 +11,7 @@ function SwitchThemeIcon() {
   return (
     <button className="
     bg-blue-300/30 hover:bg-blue-400/30 rounded-xl p-1 
-    shadow-md hover:skew-x-12
+    shadow-md 
   dark:bg-yellow-800 dark:hover:bg-yellow-700"
     onClick={handleClick}>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" 

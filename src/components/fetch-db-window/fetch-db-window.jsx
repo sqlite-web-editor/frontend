@@ -3,7 +3,7 @@ import FDWHeader from "./window-header";
 import "../../index.css";
 import SwitchThemeIcon from "./switch-theme-icon";
 
-function FetchDbWindow() {
+function FetchDbWindow({onFileUpload}) {
   return (
     <div className="bg-1 p-4 rounded-xl h-fit shadow-lg">
       <div className="h-full space-y-8">
@@ -12,7 +12,7 @@ function FetchDbWindow() {
           <SwitchThemeIcon/>
         </div>
         <div className="flex justify-center items-center h-full w-full">
-          <FDFButton/>
+          <FDFButton onFileUpload={onFileUpload}/>
         </div>
       </div>
     </div>
