@@ -1,0 +1,8 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+.table-button-active {
+    @apply border-blue-600 dark:border-blue-100;
+}

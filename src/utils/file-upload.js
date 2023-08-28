@@ -1,30 +1,30 @@
 import axios from "axios";
-import { serverUrl } from "./api-calls";
+import { getTablesNames, serverUrl } from "./api-calls";
+import { toast } from "react-hot-toast";
 axios.defaults.withCredentials = true
 
-export const handleFileUpload = (file, setTables, setServerOnline) => {
+export const handleFileUpload = (file, setTables, setServerOnline, setCurrentFile, setData, setColumns) => {
   let requestData = new FormData();
   requestData.append("file", file);
+  localStorage.setItem("currentFileName", file.name);
+  setCurrentFile(file.name);
 
   axios.post(serverUrl + '/session/create', requestData, {
     withCredentials: true
   })
     .then(response => {
-      console.log(response.headers)
-      return axios.get(serverUrl + '/sqlite/tables', {
-        withCredentials: true,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
+      return getTablesNames()
     })
     .then(response => {
       setTables(response.data.tables)
-      console.log(response.data.tables)
     })
     .catch(err => {
-      alert(err);
+      setCurrentFile("");
+      toast.error(err.response.data.detail);
+      localStorage.removeItem("currentFileName");
+      setData(undefined);
+      setColumns(undefined);
+      setTables(undefined);
     });
 
-    return file.name
   }

@@ -1,1 +1,2 @@
-export const MAX_FILE_SIZE = 1024*1024*5; //5 mb //TODO: rotate this to server side
+export const MAX_SAFE_SQLITE_INTEGER = 9223372036854775807n
+export const MIN_SAFE_SQLITE_INTEGER = -9223372036854775808n
