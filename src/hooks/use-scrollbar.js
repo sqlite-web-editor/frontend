@@ -1,5 +1,4 @@
 import { OverlayScrollbars } from "overlayscrollbars";
-import { OverlayScrollbarsComponent } from "overlayscrollbars-react";
 import { useCallback, useEffect, useState } from "react";
 
 export const scrollbarsConfig = {

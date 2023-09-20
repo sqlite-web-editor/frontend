@@ -9,9 +9,8 @@ export const TableButton = ({onClick, tableName, text, index}) => {
     onClick={()=> {
       onClick(document.getElementById(id), index)
     }}
-    className="p-2 m-4 border-2 border-transparent rounded-xl select-none text-blue-600
-    hover:bg-blue-400/30 shadow-md text-lg  bg-blue-300/30
-    dark:bg-blue-800 dark:text-blue-100 dark:hover:bg-blue-700"
+    className="
+    p-2 my-4 w-full border-2 border-transparent rounded-xl select-none text-blue-800 bg-blue-200 shadow-md hover:shadow-lg transition-shadow hover:bg-blue-300 dark:hover:bg-blue-700 text-lg dark:bg-blue-800 dark:text-blue-200"
     style={{ WebkitTapHighlightColor: 'transparent', tapHighlightColor: 'transparent'}}
     > 
     {text}

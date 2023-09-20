@@ -1,6 +1,6 @@
 import axios from "axios";
 
-export const serverUrl = "http://127.0.0.1:8000"
+export const serverUrl = "http://192.168.1.107:8000"
 
 
 export const isServerOnline = (setServerOnline) => {
@@ -45,6 +45,7 @@ export const updateTableData = (tablename, newData, oldData,  columns) => {
     confirmation_values: {},
     updated_values: {}
   };
+
   for (let i = 0; i < newData.length; i++) {
     const columnName = columns[i].name;
     let columnValue = newData[i];
@@ -53,6 +54,7 @@ export const updateTableData = (tablename, newData, oldData,  columns) => {
     }
     values.updated_values[columnName] = columnValue;
   }
+
   for (let i = 0; i < oldData.length; i++) {
     const columnName = columns[i].name;
     let columnValue = oldData[i];
@@ -72,14 +74,21 @@ export const updateTableData = (tablename, newData, oldData,  columns) => {
 
 export const createTableRow = (tableName, newData, columns) => {
   const values = {}
+
   for (let i = 0; i < newData.length; i++) {
     const columnName = columns[i].name;
     let columnValue = newData[i];
     if (columns[i].type == "BOOLEAN") {
       columnValue = +columnValue;
     }
+
+    if (columns[i].autoincrement && (columnValue === "" || columnValue===null)) {
+      continue // для полей с автоинкрементом и не установленным значением
+    }
+
     values[columnName] = columnValue;
   }
+
   return axios.post(serverUrl+`/sqlite/tables/${tableName}/content`,
     values,
     {
@@ -115,3 +124,8 @@ export const deleteTableRow = (tableName, rowData, columns) => {
     }
   )
 }
+
+export const getSqliteFile = async () => {
+  const response = await axios.get(serverUrl+'/sqlite/download', { responseType: 'blob', withCredentials: true });
+  return response;
+};

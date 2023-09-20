@@ -1,29 +1,49 @@
-import React, { useEffect, useRef, useState } from "react";
-import "../../index.css";
-import "./Table.css";
+import React, { useEffect, useRef, useState, memo} from "react";
 import { useScrollbar } from "../../hooks";
 import { createTableRow, deleteTableRow, updateTableData } from "../../utils/api-calls";
 import { MAX_SAFE_SQLITE_INTEGER, MIN_SAFE_SQLITE_INTEGER } from "../../app-config";
 import { toast } from "react-hot-toast";
 import { ScrollbarWrapper } from "../scrollbar-wrapper/scrollbar-wrapper";
+import "../../index.css";
+import "./Table.css";
 //todo delete overlayscrollbars-react
+
+
+const TableColumnNameCell = ({ column }) => {
+  const meta = [
+    column.type ? column.type: "нет типа",
+    column.notnull ? "не пустой": false,
+    column.dflt_value ? column.dflt_value: false,
+    column.pk ? "первичный ключ": false,
+    column.unique ? "уникальный": false,
+    column.autoincrement ? "автоинкремент": false
+  ]
+    .filter(value => {
+      if (value) {
+        return value
+      }
+    })
+  const showTableColumnSchema = () => toast(`${meta.join(", ")}.`, {
+    duration: 3000,
+    className: "bg-blue-50 dark:bg-gray-800 dark:text-white lg:min-w-[24rem]"
+  })
+  
+  return (
+    <th className="w-fit">
+      <button className="overflow-hidden text-ellipsis rounded-full shadow-md p-2 bg-2 hover:bg-gray-200 dark:hover:bg-gray-700 w-full" onClick={()=>showTableColumnSchema()}
+      style={{ WebkitTapHighlightColor: 'transparent', tapHighlightColor: 'transparent' }}>
+        {column.name}
+      </button>
+    </th>
+  );
+}
+
 
 const TableCell = ({ rowIndex, columnIndex, cellValue, isEditable, editedData, handleCellChange, columns }) => {
   const tableCellRef = useRef(null);
-  const tdRef = useRef(null);
   const columnType = columns[columnIndex].type;
   const [hasScroll, setHasScroll] = useState(true);
-  const canScroll = (columnType != "BOOLEAN");
-
-  const handleOverflow = (divRef) => {
-    if (divRef.current) {
-    }
-  }
-
-  const handleScrollbarDestroy = (divRef) => {
-    if (divRef.current) {
-    }
-  }
+  const canScroll = (columnType!=="BOOLEAN" && (columnType!=="INTEGER" || cellValue.length > 8));
   
 
   useEffect(()=> {
@@ -34,13 +54,11 @@ const TableCell = ({ rowIndex, columnIndex, cellValue, isEditable, editedData, h
       setHasScroll(false)
     }
   }, [isEditable])
-
-  // useScrollbar(tableCellRef, hasScroll, handleOverflow, handleScrollbarDestroy, rowIndex);
   
 
   return (
     <td>
-      <ScrollbarWrapper hasScroll={hasScroll} onOverflow={handleOverflow} onScrollbarDestroy={handleScrollbarDestroy} forceUpdate={rowIndex}>
+      <ScrollbarWrapper hasScroll={hasScroll} forceUpdate={rowIndex}>
         <div ref={tableCellRef} className="cell">
           {isEditable ? (
             columnType === "BOOLEAN" ? (
@@ -71,25 +89,52 @@ const TableCell = ({ rowIndex, columnIndex, cellValue, isEditable, editedData, h
 }
 
 
+const SaveButton = ({rowIndex, handleSaveRow}) => {
+  return (
+    <button className="shadow-md hover:shadow-lg transition-shadow hover:bg-green-300 dark:hover:bg-green-700 bg-green-200 dark:bg-green-800 border-2 border-transparent rounded-xl p-2"
+      onClick={() => handleSaveRow(rowIndex)}>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+        <path strokeLinecap="round" strokeLinejoin="round" d="M4.5 12.75l6 6 9-13.5"
+        className="stroke-2 stroke-green-800 dark:stroke-green-200" />
+      </svg>
+    </button> 
+    );
+}
+
+
 const EditButton = ({ rowIndex, handleEditRow }) => {
   return (
-    <button className="shadow-md border-2 border-blue-400 bg-blue-400/30 dark:border-blue-300 dark:bg-blue-300/10 rounded-xl p-1"
+    <button className="shadow-md hover:shadow-lg transition-shadow hover:bg-blue-300 dark:hover:bg-blue-700 bg-blue-200 dark:bg-blue-800 border-2 border-transparent rounded-xl p-2"
     onClick={() => handleEditRow(rowIndex)}>
       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
         <path strokeLinecap="round" strokeLinejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L6.832 19.82a4.5 4.5 0 01-1.897 1.13l-2.685.8.8-2.685a4.5 4.5 0 011.13-1.897L16.863 4.487zm0 0L19.5 7.125" 
-        className="fill-blue-400/10 stroke-blue-950 dark:fill-blue-300/10 dark:stroke-blue-100"/>
+        className="stroke-2 stroke-blue-800 dark:stroke-blue-200"/>
       </svg>
     </button>
   );
 };
 
+
+const CancelButton = ({ rowIndex, handleCancelEdit }) => {
+  return (
+    <button className="shadow-md hover:shadow-lg transition-shadow hover:bg-red-300 dark:hover:bg-red-700 bg-red-200 dark:bg-red-800 border-2 border-transparent rounded-xl p-2"
+    onClick={() => handleCancelEdit(rowIndex)}>
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+          <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" 
+          className="stroke-2 stroke-red-800 dark:stroke-red-200"/>
+        </svg>
+    </button>
+  );
+};
+
+
 const DeleteButton = ({ rowIndex, handleDeleteRow }) => {
   return (
-    <button className="shadow-md border-2 border-red-400 bg-red-400/30 dark:border-red-300 dark:bg-red-300/10 rounded-xl p-1"
+    <button className="shadow-md hover:shadow-lg transition-shadow hover:bg-red-300 dark:hover:bg-red-700 bg-red-200 dark:bg-red-800 border-2 border-transparent rounded-xl p-2"
     onClick={() => handleDeleteRow(rowIndex)}>
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
           <path strokeLinecap="round" strokeLinejoin="round" d="M14.74 9l-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 01-2.244 2.077H8.084a2.25 2.25 0 01-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 00-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 013.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 00-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 00-7.5 0" 
-          className="fill-red-400/10 stroke-red-950 dark:fill-red-300/10 dark:stroke-red-100"/>
+          className="stroke-2 stroke-red-800 dark:stroke-red-200"/>
         </svg>
     </button>
   );
@@ -114,12 +159,12 @@ const TableRow = ({ row, rowIndex, columns, editableRowIndex, editedData, handle
       ))}
       <td>
         {isEditable ? (
-          <div className="flex justify-end">
-            <button onClick={() => handleEditRow(rowIndex)}>Save</button>
-            <button onClick={handleCancelEdit}>Cancel</button>
+          <div className="space-x-4 flex justify-end min-w-fit">
+            <SaveButton rowIndex={rowIndex} handleSaveRow={handleEditRow}/>
+            <CancelButton rowIndex={rowIndex} handleCancelEdit={handleCancelEdit}/>
           </div>
         ) : (
-          <div className="space-x-4 flex justify-end">
+          <div className="space-x-4 flex justify-end min-w-fit">
             <EditButton rowIndex={rowIndex} handleEditRow={handleEditRow} />
             <DeleteButton rowIndex={rowIndex} handleDeleteRow={handleDeleteRow} />
           </div>
@@ -129,17 +174,23 @@ const TableRow = ({ row, rowIndex, columns, editableRowIndex, editedData, handle
   );
 };
 
+
 const AddRowButton = ({ handleAddRow }) => {
-  return <button className="rounded-xl shadow-md p-1 border-2 bg-green-400/30 border-green-400 dark:bg-green-300/10 dark:border-green-300"
-  onClick={handleAddRow}>
-    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-      <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"
-      className="fill-green-400/10 stroke-green-950 dark:fill-green-300/10 dark:stroke-green-100" />
-    </svg>
-  </button>;
+  // return <button className="shadow-md hover:shadow-lg transition-shadow hover:bg-green-300 dark:hover:bg-green-700 bg-green-200 dark:bg-green-800 border-2 border-transparent rounded-2xl flex items-center justify-center w-[56px] h-[56px]"
+  // onClick={handleAddRow}>
+  //   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-[24px] h-[24px]">
+  //     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"
+  //     className="stroke-2 stroke-green-800 dark:stroke-green-200"/>
+  //   </svg>
+  // </button>;
+  return <button
+    className="shadow-md dark:bg-green-300 hover:shadow-lg transition-shadow hover:bg-green-800 dark:hover:bg-green-700 bg-green-600 border-2 border-transparent rounded-3xl w-full h-[40px]"
+    onClick={handleAddRow}><bold className="text-white dark:text-green-900 font-bold">Добавить строку</bold></button>
 };
 
+
 const Table = ({ columns, tableData, tableName }) => {
+  // const [lock, setLock] = useState(false);
   const [data, setData] = useState(tableData);
   const [editableRowIndex, setEditableRowIndex] = useState(null);
   const [newRowIndex, setNewRowIndex] = useState(null);
@@ -148,47 +199,40 @@ const Table = ({ columns, tableData, tableName }) => {
   useScrollbar(tableRef, true)
 
   // короче наблюдает когда нажимаем на едит и сейв
+  // сделать индексы для null и autoincrement с unique
   const handleEditRow = (rowIndex) => {
     let isNull = false;
-    let isUnique = true;
+    let autoincrement_index = null;
     let nullIndex = null;
-    let indices = [];
+    let cantnull_indices = [];
+    let unique_indices = [];
 
     // когда сейв
     if (rowIndex === editableRowIndex) {
       const oldData = data[rowIndex];
-      const updatedData = [...data];
-      
-      columns.forEach((column, index) => {
-        if (column.pk) {
-          indices.push(index)
-        }
-      })
-      
-      editedData.forEach((newValue, newValueIndex) => {
-        if (indices.includes(newValueIndex)) {
-          data.forEach((value_in_db, index) => {
-            if (index==editableRowIndex) {
-              return;
-            }
-            if (newValue == value_in_db[newValueIndex]) {
-              // почему то index тут иногда бывает неверным, короче будь осторожнее
-              // когда будешь расширять это
-              toast.error(`${columns[newValueIndex].name} должен быть уникальный`);
-              isUnique = false;
-              return;
-            }
-          })
-        }
-      })
+      let updatedData = [...data];
+      // console.log(oldData, updatedData, rowIndex, editedData)
 
-      if (!isUnique) {
-        return;
-      }
+      // useEffect для колонн TODO: preprocessor
+      columns.forEach((column, index) => {
+        if (column.unique || column.pk) {
+          unique_indices.push(index);
+        }
+        if (column.autoincrement) {
+          autoincrement_index = index;
+        }
+
+        if (column.notnull) {
+          cantnull_indices.push(index);
+        }
+      })
 
       editedData.forEach((value, index) => {
         let column = columns[index]
         if (column.notnull && (value == "" || (column.type=="INTEGER" && value == "-")) ) {
+          if (column.autoincrement && newRowIndex==editableRowIndex) {
+            return
+          }
           isNull = true;
           nullIndex = index;
           toast.error(`${column.name} не может быть пустой`);
@@ -198,20 +242,55 @@ const Table = ({ columns, tableData, tableName }) => {
       if (isNull) {
         return;
       }
-      //
+      
       updatedData[rowIndex] = editedData;
-      setData(updatedData);
-      setEditableRowIndex(null);
-      setEditedData([]);
       const updatedRowData = updatedData[rowIndex];
+      console.log(updatedData, updatedRowData, rowIndex, editedData);
 
       if (newRowIndex===rowIndex) {
-        createTableRow(tableName, updatedRowData, columns).then(res=>console.log(res))
+        createTableRow(tableName, updatedRowData, columns)
+          .then(
+            res=>{
+              if (autoincrement_index!==null) {
+                updatedData = res.data;
+                let buf = [...data];
+                buf[rowIndex] = Object.values(updatedData);
+                setData(buf);
+              }
+            }
+          )
+          .catch(
+            err => {
+              toast.error(err.response.data.detail)
+              setEditableRowIndex(null);
+              setEditedData([]);
+              setNewRowIndex(null);
+
+              // data.pop() in state lock setLock для того чтобы по кайфу не была перебивок
+              let buf = [...data]; 
+              buf.pop()
+              setData(buf)
+            }
+          )
       }
 
       else {
-        updateTableData(tableName, updatedRowData, oldData, columns).then(res=>console.log(res))
+        updateTableData(tableName, updatedRowData, oldData, columns)
+          .catch(
+            err => {
+              toast.error(err.response.data.detail)
+              setData(data);
+              setEditableRowIndex(null);
+              setEditedData([]);
+              setNewRowIndex(null);
+            }
+          )
       }
+
+      setEditableRowIndex(null);
+      setEditedData([]);
+      setNewRowIndex(null);
+      setData(updatedData);
 
     } else {
       // когда edit
@@ -219,6 +298,8 @@ const Table = ({ columns, tableData, tableName }) => {
       setEditedData(data[rowIndex]);
     }
   };
+
+  
 
   const handleCellChange = (e, columnIndex) => {
     const updatedEditedData = [...editedData];
@@ -236,7 +317,8 @@ const Table = ({ columns, tableData, tableName }) => {
 
         else { 
           if (bigIntValue < MIN_SAFE_SQLITE_INTEGER) {
-              bigIntValue=MIN_SAFE_SQLITE_INTEGER
+            toast.error(`Минимальное числовое значение поддерживаемое sqlite - ${MIN_SAFE_SQLITE_INTEGER.toString()}`)
+            throw new Error();
           }
         }
 
@@ -266,12 +348,13 @@ const Table = ({ columns, tableData, tableName }) => {
     }
   };
 
+
   const handleAddRow = () => {
     const newRow = columns.map((column) => {
       if (column.notnull && !column.autoincrement) {
         return "";
       } else if (column.autoincrement) {
-        return null;
+        return "";
       } else {
         return column.dflt_value || "";
       }
@@ -282,6 +365,7 @@ const Table = ({ columns, tableData, tableName }) => {
     setEditableRowIndex(updatedData.length - 1);
     setEditedData(newRow);
   };
+
 
   const handleCancelEdit = () => {
     setEditableRowIndex(null);
@@ -294,15 +378,15 @@ const Table = ({ columns, tableData, tableName }) => {
 
   return (
     <>
-      <div className="w-full p-4 pb-12 bg-1 rounded-xl shadow-lg" ref={tableRef}>
+      <div className="w-full pt-4 pb-12 bg-1 rounded-xl shadow-lg" ref={tableRef}>
         <table className="space-y-2 w-full">
           <thead>
             <tr>
               {columns.map((column) => (
-                <th key={column.cid}>{column.name}</th>
+                <React.Fragment key={column.cid}>
+                  <TableColumnNameCell column={column}/>
+                </React.Fragment>
               ))}
-            <th>
-            </th>
             </tr>
           </thead>
           <tbody>
@@ -323,7 +407,7 @@ const Table = ({ columns, tableData, tableName }) => {
           </tbody>
         </table>
       </div>
-      <div className="w-full flex justify-end p-4">
+      <div className="w-full flex justify-center py-4">
         <AddRowButton handleAddRow={handleAddRow}/>
       </div>
     </>

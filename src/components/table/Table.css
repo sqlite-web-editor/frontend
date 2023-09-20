@@ -8,20 +8,25 @@ th {
     white-space: nowrap;
 }
 
-
+tr {
+    min-height: 70px;
+    height: 70px;
+}
 td, th {
-    @apply px-1;
+    @apply pr-4;
+    min-height: 70px;
     padding-bottom: 20px;
     align-items: center;
     text-align: center;
     justify-content: center;
-    width: 100px;
-    max-width: 100px;
+    min-width: 150px;
+    width: 150px;
+    max-width: 150px;
 }
 
 .cell {
-    min-width: 100px;
-    @apply p-1;
+    min-width: 150px;
+    @apply p-2;
 }
 
 

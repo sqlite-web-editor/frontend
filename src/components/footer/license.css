@@ -1,0 +1,13 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer components {
+    .text-blue-700-glowing {
+        text-shadow: theme("colors.blue.700") 0px 0px 10px, theme("colors.blue.700") 0px 0px 25px;
+    }
+    .text-blue-800-glowing-small {
+        text-shadow: theme("colors.blue.800") 0px 0px 10px;
+    }
+}

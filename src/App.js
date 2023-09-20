@@ -10,6 +10,7 @@ import { TableList } from './components/tables-list/TableList';
 import { editTheme } from './components/fetch-db-window/utils';
 import 'overlayscrollbars/overlayscrollbars.css';
 import { Toaster, toast, useToasterStore } from 'react-hot-toast';
+import Footer from './components/footer/Footer';
 
 const TOAST_LIMIT = 3;
 
@@ -23,7 +24,7 @@ const App = () => {
   const [theme, setTheme] = useState(undefined);
   const [currentFile, setCurrentFile] = useState();
   const { toasts } = useToasterStore();
-  // true -> dark themex
+  // true -> dark theme
   // false -> light theme
 
   useEffect(()=> {
@@ -54,19 +55,36 @@ const App = () => {
   }, []);
 
 
+  useEffect(()=>{
+    setData(undefined);
+    setColumns(undefined);
+  }, [currentFile])
+
+  
   useEffect(()=> {
     if (currentTable) {
       getTableData(currentTable, 0, 50)
         .then(resp=>{
           let data = resp.data.data
-          data.map(row => {
-            return row.map((value, index) => {
-              if (resp.data.columns[index].type === 'INTEGER') {
-                return BigInt(value);
-              }
-              return value;
+          let row_index_buffer;
+          let cell_index_buffer;
+
+          try {
+            data.map((row, rowIndex) => {
+              row_index_buffer = rowIndex;
+              return row.map((value, index) => {
+                if (resp.data.columns[index].type === 'INTEGER') {
+                  cell_index_buffer = index;
+                  return BigInt(value);
+                }
+                return value;
+              });
             });
-          });
+          }
+          catch {
+            toast.error(`Битая колонна ${resp.data.columns[cell_index_buffer].name}, получено значение ${data[row_index_buffer][cell_index_buffer]}, ожидалось значение типа ${resp.data.columns[cell_index_buffer].type}`,
+            {duration: 6000})
+          }
           setData(data);
           setColumns(resp.data.columns);
         })
@@ -89,9 +107,9 @@ const App = () => {
 
   if (serverOnline & theme!=undefined) {
   return (
-    <div className='w-full h-full'>
+    <div className='w-full min-h-screen wrapper'>
       <Toaster/>
-      <div className='flex flex-col lg:pt-12 justify-center items-center space-y-4'>
+      <main className='flex flex-col lg:pt-12 items-center space-y-4 w-full h-full'>
         <div className='w-full lg:w-fit'>
           <div className='flex flex-col lg:flex-row w-full justify-center space-y-4 lg:space-y-0 lg:space-x-4'>
             <FetchDbWindow theme={theme} setTheme={setTheme} onFileUpload={(file)=>handleFileUpload(file, setTables, setServerOnline, setCurrentFile, setData, setColumns)}/>
@@ -100,7 +118,7 @@ const App = () => {
             </div>
           </div>
         </div>
-        <div className='w-full lg:w-fit flex items-center justify-center'>
+        <div className='w-full flex items-center justify-center'>
           {
           tables ? 
             <TableList setCurrentTable={setCurrentTable} 
@@ -115,6 +133,10 @@ const App = () => {
           </div>
         : ""
         }
+      </main>
+      <div className={"w-full " + (data ? "pt-36" : "") }>
+        <footer className='h-12 w-full bg-gray-50 dark:bg-gray-950 rounded-full -my-7 inline-block'/>
+        <Footer/>
       </div>
     </div>
     )

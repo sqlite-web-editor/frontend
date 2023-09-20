@@ -11,7 +11,7 @@ export const TableList = ({tablesArray, setCurrentTable}) => {
   useScrollbar(tableListRef, true)
   return (
     <div ref={tableListRef} className="bg-1 rounded-xl shadow-lg w-full">
-      <div className="flex items-center justify-between space-p-4">
+      <div className="flex items-center justify-between space-x-4">
         {tablesArray.map((tableName,) => {
           return (
             <TableButton key={tableName} tableName={tableName} 

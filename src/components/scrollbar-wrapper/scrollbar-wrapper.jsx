@@ -17,7 +17,9 @@ export const ScrollbarWrapper = ({ children, hasScroll, onOverflow, onScrollbarD
 
       return () => {
         scrollbars.destroy();
-        onScrollbarDestroy(divRef);
+        if (onScrollbarDestroy) {
+          onScrollbarDestroy(divRef);
+        }
       };
     }
   }, [hasScroll, forceUpdate]);

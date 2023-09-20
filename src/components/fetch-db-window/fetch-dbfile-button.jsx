@@ -14,19 +14,17 @@ function FDFButton({onFileUpload}) {
   return (
     <>
       <button
-        className="whitespace-nowrap w-full rounded-xl py-2 px-6 text-blue-600
-        hover:bg-blue-400/30 shadow-md text-xl  bg-blue-300/30
-        dark:bg-blue-800 dark:text-blue-100 dark:hover:bg-blue-700 max-w-[800px]"
+        className="whitespace-nowrap w-full rounded-xl py-2 px-6 text-blue-800 dark:text-blue-200 bg-blue-200 dark:bg-blue-800 shadow-md hover:shadow-lg transition-shadow hover:bg-blue-300 dark:hover:bg-blue-700 text-xl"
         style={{ WebkitTapHighlightColor: 'transparent', tapHighlightColor: 'transparent' }}
         onClick={() => inputRef.current.click()}
       >
-        Upload file
+        Загрузить файл
       </button>
       <input
         type="file"
         ref={inputRef}
         multiple={false}
-        style={{ display: 'absolute' }}
+        style={{ display: 'none' }}
         onChange={handleFileUpload}
       />
     </>
