@@ -9,11 +9,11 @@ function FetchDbWindow({onFileUpload, theme, setTheme}) {
     setTheme(!(theme))
   }
   return (
-    <div className="bg-1 p-4 rounded-xl h-fit shadow-lg">
-      <div className="h-full space-y-8">
-        <div className="flex flex-row justify-between items-center space-x-8">
-          <FDWHeader/>
-          <SwitchThemeIcon onClick={handleChangeThemeClick} theme={theme}/>
+    <div className="bg-1 rounded-b-xl lg:rounded-xl h-fit shadow-lg">
+      <div className="h-full w-full space-y-4 p-4">
+        <div className="flex justify-center items-center w-full space-x-2">
+        <FDWHeader/>
+        <SwitchThemeIcon onClick={handleChangeThemeClick} theme={theme}/>
         </div>
         <div className="flex justify-center items-center h-full w-full space-x-2">
           <FDFButton onFileUpload={onFileUpload}/>

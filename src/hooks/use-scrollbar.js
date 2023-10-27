@@ -1,5 +1,6 @@
-import { OverlayScrollbars } from "overlayscrollbars";
+import { ClickScrollPlugin, OverlayScrollbars } from "overlayscrollbars";
 import { useCallback, useEffect, useState } from "react";
+
 
 export const scrollbarsConfig = {
 	className       : "os-theme-light",
@@ -7,7 +8,8 @@ export const scrollbarsConfig = {
 	sizeAutoCapable : true,
 	paddingAbsolute : true,
 	scrollbars : {
-		clickScrolling : true,
+    dragScroll: true,
+		clickScroll : true,
     autoHide: "leave",
     theme: "os-theme-light"
 	},

@@ -1,13 +1,13 @@
-import React, { useEffect, useRef, useState, memo} from "react";
+import React, { useEffect, useRef, useState} from "react";
 import { useScrollbar } from "../../hooks";
 import { createTableRow, deleteTableRow, updateTableData } from "../../utils/api-calls";
 import { MAX_SAFE_SQLITE_INTEGER, MIN_SAFE_SQLITE_INTEGER } from "../../app-config";
 import { toast } from "react-hot-toast";
-import { ScrollbarWrapper } from "../scrollbar-wrapper/scrollbar-wrapper";
 import "../../index.css";
 import "./Table.css";
+import { toastError } from "../../utils/toast-error";
+import FileForm from "./FileForm";
 //todo delete overlayscrollbars-react
-
 
 const TableColumnNameCell = ({ column }) => {
   const meta = [
@@ -23,14 +23,15 @@ const TableColumnNameCell = ({ column }) => {
         return value
       }
     })
-  const showTableColumnSchema = () => toast(`${meta.join(", ")}.`, {
+
+  const showTableColumnSchema = () => toast(`${meta.join(", ")}. Полное имя: ${column.name}`, {
     duration: 3000,
-    className: "bg-blue-50 dark:bg-gray-800 dark:text-white lg:min-w-[24rem]"
+    className: "rounded-lg bg-blue-50 border-2 border-blue-900 dark:border-blue-50 dark:bg-gray-800 dark:text-white lg:min-w-[24rem]"
   })
   
   return (
     <th className="w-fit">
-      <button className="overflow-hidden text-ellipsis rounded-full shadow-md p-2 bg-2 hover:bg-gray-200 dark:hover:bg-gray-700 w-full" onClick={()=>showTableColumnSchema()}
+      <button className="px-2 overflow-hidden text-ellipsis rounded-full p-2 bg-2 hover:bg-gray-400 dark:hover:bg-gray-700 w-full" onClick={()=>showTableColumnSchema()}
       style={{ WebkitTapHighlightColor: 'transparent', tapHighlightColor: 'transparent' }}>
         {column.name}
       </button>
@@ -40,50 +41,40 @@ const TableColumnNameCell = ({ column }) => {
 
 
 const TableCell = ({ rowIndex, columnIndex, cellValue, isEditable, editedData, handleCellChange, columns }) => {
-  const tableCellRef = useRef(null);
   const columnType = columns[columnIndex].type;
-  const [hasScroll, setHasScroll] = useState(true);
-  const canScroll = (columnType!=="BOOLEAN" && (columnType!=="INTEGER" || cellValue.length > 8));
-  
-
-  useEffect(()=> {
-    if (canScroll) {
-      setHasScroll(!isEditable)
-    }
-    else {
-      setHasScroll(false)
-    }
-  }, [isEditable])
-  
-
   return (
     <td>
-      <ScrollbarWrapper hasScroll={hasScroll} forceUpdate={rowIndex}>
-        <div ref={tableCellRef} className="cell">
-          {isEditable ? (
-            columnType === "BOOLEAN" ? (
-              <input
-                type="checkbox"
-                checked={editedData[columnIndex]}
-                onChange={(e) => handleCellChange(e, columnIndex)}
-              />
-            ) : (
-              <input
-                className="table_input"
-                type="text"
-                value={editedData[columnIndex]}
-                onChange={(e) => handleCellChange(e, columnIndex)}
-              />
-            )
-          ) : (
-            columnType === "BOOLEAN" ? (
-              <input type="checkbox" checked={cellValue} readOnly />
-            ) : (
-              cellValue
-            )
-          )}
-        </div>
-      </ScrollbarWrapper>
+      <div className="cell">
+        <span>
+          {
+            columnType === "BLOB" ? (
+              <FileForm isEditable={isEditable} cellValue={cellValue}/>
+            ):
+              isEditable ? (
+                columnType === "BOOLEAN" ? (
+                  <input
+                    type="checkbox"
+                    checked={editedData[columnIndex]}
+                    onChange={(e) => handleCellChange(e, columnIndex)}
+                  />
+                ) : (
+                  <input
+                    className="table_input"
+                    type="text"
+                    value={editedData[columnIndex]}
+                    onChange={(e) => handleCellChange(e, columnIndex)}
+                  />
+                )
+              ) : (
+                columnType === "BOOLEAN" ? (
+                  <input type="checkbox" checked={cellValue} readOnly />
+                ) : (
+                  cellValue
+                )
+              )
+          }
+        </span>
+      </div>
     </td>
   );
 }
@@ -157,7 +148,7 @@ const TableRow = ({ row, rowIndex, columns, editableRowIndex, editedData, handle
           columns={columns}
         />
       ))}
-      <td>
+      <td className="pl-4 w-0">
         {isEditable ? (
           <div className="space-x-4 flex justify-end min-w-fit">
             <SaveButton rowIndex={rowIndex} handleSaveRow={handleEditRow}/>
@@ -176,31 +167,55 @@ const TableRow = ({ row, rowIndex, columns, editableRowIndex, editedData, handle
 
 
 const AddRowButton = ({ handleAddRow }) => {
-  // return <button className="shadow-md hover:shadow-lg transition-shadow hover:bg-green-300 dark:hover:bg-green-700 bg-green-200 dark:bg-green-800 border-2 border-transparent rounded-2xl flex items-center justify-center w-[56px] h-[56px]"
-  // onClick={handleAddRow}>
-  //   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-[24px] h-[24px]">
-  //     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4.5v15m7.5-7.5h-15"
-  //     className="stroke-2 stroke-green-800 dark:stroke-green-200"/>
-  //   </svg>
-  // </button>;
   return <button
-    className="shadow-md dark:bg-green-300 hover:shadow-lg transition-shadow hover:bg-green-800 dark:hover:bg-green-700 bg-green-600 border-2 border-transparent rounded-3xl w-full h-[40px]"
-    onClick={handleAddRow}><bold className="text-white dark:text-green-900 font-bold">Добавить строку</bold></button>
+    className="shadow-md dark:bg-green-300 hover:shadow-lg transition-shadow hover:bg-green-800 dark:hover:bg-green-400 bg-green-600 border-2 border-transparent rounded-3xl w-full md:max-w-[50%] h-[48px]"
+    onClick={handleAddRow}><b className="text-white dark:text-green-900 font-bold">Добавить строку</b></button>
 };
 
 
-const Table = ({ columns, tableData, tableName }) => {
-  // const [lock, setLock] = useState(false);
+const Table = ({ columns, tableData, tableName, decTableRowCount, incTableRowCount }) => {
   const [data, setData] = useState(tableData);
   const [editableRowIndex, setEditableRowIndex] = useState(null);
   const [newRowIndex, setNewRowIndex] = useState(null);
   const [editedData, setEditedData] = useState([]);
   const tableRef = useRef(null);
-  useScrollbar(tableRef, true)
+
+  //scrolling
+  const [isDragging, setIsDragging] = useState(false);
+  const [startX, setStartX] = useState(null);
+  const [scrollLeft, setScrollLeft] = useState(0);
+
+  const handleMouseDown = (e) => {
+    const isDraggingClick = e.target.tagName === 'TD' || e.target.tagName === 'TH';
+    if (isDraggingClick) {
+      setIsDragging(true);
+      setStartX(e.pageX);
+      setScrollLeft(tableRef.current.scrollLeft);
+    }
+  };
+
+  const handleMouseMove = (e) => {
+    if (!isDragging) return;
+    tableRef.current.style.cursor = 'grabbing';
+    e.preventDefault();
+    const x = e.pageX;
+    const walk = (x - startX) * 1.5;
+    tableRef.current.scrollLeft = scrollLeft - walk;
+  };
+  // также для mouseout используется
+  const handleMouseUp = () => {
+    tableRef.current.style.cursor = "default";
+    setIsDragging(false);
+    setStartX(null);
+  };
+
 
   // короче наблюдает когда нажимаем на едит и сейв
-  // сделать индексы для null и autoincrement с unique
   const handleEditRow = (rowIndex) => {
+    if (editableRowIndex && editableRowIndex !== rowIndex) {
+      toastError("Сначало завершите изменения")
+      return;
+    }
     let isNull = false;
     let autoincrement_index = null;
     let nullIndex = null;
@@ -211,9 +226,7 @@ const Table = ({ columns, tableData, tableName }) => {
     if (rowIndex === editableRowIndex) {
       const oldData = data[rowIndex];
       let updatedData = [...data];
-      // console.log(oldData, updatedData, rowIndex, editedData)
 
-      // useEffect для колонн TODO: preprocessor
       columns.forEach((column, index) => {
         if (column.unique || column.pk) {
           unique_indices.push(index);
@@ -229,13 +242,20 @@ const Table = ({ columns, tableData, tableName }) => {
 
       editedData.forEach((value, index) => {
         let column = columns[index]
-        if (column.notnull && (value == "" || (column.type=="INTEGER" && value == "-")) ) {
+        
+        if (column.type=="INTEGER" && value == "-") {
+          toastError(`${column.name} ожидается число, а не '-'`)
+          isNull=true;
+          return;
+        }
+
+        if (column.notnull && (value == "") ) {
           if (column.autoincrement && newRowIndex==editableRowIndex) {
-            return
+            return;
           }
           isNull = true;
           nullIndex = index;
-          toast.error(`${column.name} не может быть пустой`);
+          toastError(`${column.name} не может быть пустой`);
         }
       })
 
@@ -245,7 +265,6 @@ const Table = ({ columns, tableData, tableName }) => {
       
       updatedData[rowIndex] = editedData;
       const updatedRowData = updatedData[rowIndex];
-      console.log(updatedData, updatedRowData, rowIndex, editedData);
 
       if (newRowIndex===rowIndex) {
         createTableRow(tableName, updatedRowData, columns)
@@ -257,16 +276,16 @@ const Table = ({ columns, tableData, tableName }) => {
                 buf[rowIndex] = Object.values(updatedData);
                 setData(buf);
               }
+              incTableRowCount();
             }
           )
           .catch(
             err => {
-              toast.error(err.response.data.detail)
+              toastError(err.response.data.detail)
               setEditableRowIndex(null);
               setEditedData([]);
               setNewRowIndex(null);
 
-              // data.pop() in state lock setLock для того чтобы по кайфу не была перебивок
               let buf = [...data]; 
               buf.pop()
               setData(buf)
@@ -278,7 +297,7 @@ const Table = ({ columns, tableData, tableName }) => {
         updateTableData(tableName, updatedRowData, oldData, columns)
           .catch(
             err => {
-              toast.error(err.response.data.detail)
+              toastError(err.response.data.detail)
               setData(data);
               setEditableRowIndex(null);
               setEditedData([]);
@@ -311,13 +330,13 @@ const Table = ({ columns, tableData, tableName }) => {
         let bigIntValue = BigInt(value);
 
         if (bigIntValue > MAX_SAFE_SQLITE_INTEGER) {
-          toast.error(`Максимальное числовое значение поддерживаемое sqlite - ${MAX_SAFE_SQLITE_INTEGER.toString()}`)
+          toastError(`Максимальное числовое значение поддерживаемое sqlite - ${MAX_SAFE_SQLITE_INTEGER.toString()}`)
           throw new Error();
         }
 
         else { 
           if (bigIntValue < MIN_SAFE_SQLITE_INTEGER) {
-            toast.error(`Минимальное числовое значение поддерживаемое sqlite - ${MIN_SAFE_SQLITE_INTEGER.toString()}`)
+            toastError(`Минимальное числовое значение поддерживаемое sqlite - ${MIN_SAFE_SQLITE_INTEGER.toString()}`)
             throw new Error();
           }
         }
@@ -334,8 +353,8 @@ const Table = ({ columns, tableData, tableName }) => {
   };
 
   const handleDeleteRow = (rowIndex) => {
-    if (editableRowIndex && editableRowIndex != rowIndex) {
-      toast.error("Сначало завершите изменения")
+    if (editableRowIndex && editableRowIndex !== rowIndex) {
+      toastError("Сначало завершите изменения")
       return;
     }
     const updatedData = [...data];
@@ -344,12 +363,17 @@ const Table = ({ columns, tableData, tableName }) => {
     
     // чтобы когда по новоиспеченному row тыкали cancel не отправлять реквест
     if (!editableRowIndex) {
-      deleteTableRow(tableName, data[rowIndex], columns).then(res=>console.log(res));
+      deleteTableRow(tableName, data[rowIndex], columns);
+      decTableRowCount();
     }
   };
 
 
   const handleAddRow = () => {
+    if (editableRowIndex) {
+      toastError("Сначало завершите изменения")
+      return;
+    }
     const newRow = columns.map((column) => {
       if (column.notnull && !column.autoincrement) {
         return "";
@@ -376,9 +400,15 @@ const Table = ({ columns, tableData, tableName }) => {
     }
   };
 
+
   return (
     <>
-      <div className="w-full pt-4 pb-12 bg-1 rounded-xl shadow-lg" ref={tableRef}>
+      <div className="w-full pt-4 pb-12 bg-1 rounded-xl shadow-lg dark:dark-overlow-style overflow-style overflow-auto" 
+      ref={tableRef}
+      onMouseDown={handleMouseDown}
+      onMouseMove={handleMouseMove}
+      onMouseUp={handleMouseUp}
+      onMouseLeave={handleMouseUp}>
         <table className="space-y-2 w-full">
           <thead>
             <tr>
@@ -407,11 +437,11 @@ const Table = ({ columns, tableData, tableName }) => {
           </tbody>
         </table>
       </div>
-      <div className="w-full flex justify-center py-4">
+      <div className="w-full flex justify-center items-center py-4">
         <AddRowButton handleAddRow={handleAddRow}/>
       </div>
     </>
-  );  
+  );
 };
 
 export default Table;

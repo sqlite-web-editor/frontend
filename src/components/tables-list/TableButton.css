@@ -4,5 +4,5 @@
 
 
 .table-button-active {
-    @apply border-blue-600 dark:border-blue-100;
+    @apply !border-blue-600 dark:!border-blue-100;
 }

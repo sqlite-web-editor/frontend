@@ -5,6 +5,7 @@
 html {
   height: 100%;
   margin: 0;
+  font-family: 'Roboto', sans-serif;
 }
 
 * {
@@ -72,6 +73,27 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+
+
+html::-webkit-scrollbar {
+  @apply bg-slate-700;
+}
+
+html.dark::-webkit-scrollbar {
+  @apply bg-black;
+}
+
+html::-webkit-scrollbar-thumb {
+  border: 4px solid rgba(0, 0, 0, 0);
+  background-clip: padding-box;
+  border-radius: 9999px;
+  @apply bg-blue-300 hover:bg-blue-400;
+}
+
+html.dark::-webkit-scrollbar-thumb {
+  @apply bg-blue-800 hover:bg-blue-700;
+}
+
 .wrapper {
   align-items: center;
   justify-content: center;
@@ -87,5 +109,4 @@ main {
 
 footer {
   flex-shrink: 0;
-  height: 100px;
 }

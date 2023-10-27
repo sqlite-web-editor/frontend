@@ -1,6 +1,6 @@
 import axios from "axios";
 import { getTablesNames, serverUrl } from "./api-calls";
-import { toast } from "react-hot-toast";
+import { toastError } from "./toast-error";
 axios.defaults.withCredentials = true
 
 export const handleFileUpload = (file, setTables, setServerOnline, setCurrentFile, setData, setColumns) => {
@@ -20,7 +20,7 @@ export const handleFileUpload = (file, setTables, setServerOnline, setCurrentFil
     })
     .catch(err => {
       setCurrentFile("");
-      toast.error(err.response.data.detail);
+      toastError(err.response.data.detail);
       localStorage.removeItem("currentFileName");
       setData(undefined);
       setColumns(undefined);

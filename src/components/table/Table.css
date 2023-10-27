@@ -2,41 +2,76 @@
 @tailwind components;
 @tailwind utilities;
 
+
+@layer base {
+    .dark-overflow-style::-webkit-scrollbar-track {
+        @apply bg-blue-900;
+    }
+    .dark-overflow-style::-webkit-scrollbar-thumb {
+        @apply bg-blue-600;
+    }
+    .overflow-style::-webkit-scrollbar-track {
+        @apply bg-gray-400;
+    }
+    
+    .overflow-style::-webkit-scrollbar-thumb {
+        @apply bg-gray-300;
+    }    
+}
+
+
 th {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
-}
-
-tr {
-    min-height: 70px;
-    height: 70px;
-}
-td, th {
-    @apply pr-4;
-    min-height: 70px;
-    padding-bottom: 20px;
-    align-items: center;
-    text-align: center;
-    justify-content: center;
-    min-width: 150px;
-    width: 150px;
-    max-width: 150px;
-}
-
-.cell {
-    min-width: 150px;
     @apply p-2;
 }
 
 
-.overflowed-cell {
-    @apply border-b-2 border-blue-400 dark:border-blue-600 drop-shadow-md shadow-blue-300;
-    @apply bg-indigo-200/30;
+td, th {
+    height: 100px;
+    text-wrap: nowrap;
+    padding-bottom: 40px;
+    align-items: center;
+    text-align: center;
+    justify-content: center;
+    min-width: 45px;
+    width: fit-content;
+    max-width: 500px;
+    @apply px-4;
 }
 
+td div span {
+    @apply w-full;
+}
+
+.cell {
+    min-width: 45px;
+    max-height: 200px;
+    overflow: auto;
+    @apply w-full p-2 dark:dark-overflow-style;
+}
+
+
 .table_input {
-    @apply rounded-xl p-2 h-8 w-full;
+    min-width: 45px;
+    @apply rounded-full p-2 text-center w-full;
     @apply text-gray-800 dark:text-gray-100;
     @apply bg-gray-300 dark:bg-gray-800;
+}
+
+div::-webkit-scrollbar {
+    @apply w-fit h-3;
+}
+  
+div::-webkit-scrollbar-track {
+    @apply rounded-full;
+}
+  
+div::-webkit-scrollbar-thumb {
+    @apply rounded-lg;
+}
+
+.stdbutton {
+    @apply whitespace-nowrap border-2 border-transparent overflow-clip rounded-full p-2 sm:px-6 text-blue-800 dark:text-blue-200 bg-blue-200 dark:bg-blue-800 shadow-md hover:shadow-lg transition-shadow hover:bg-blue-300 dark:hover:bg-blue-700;
 }

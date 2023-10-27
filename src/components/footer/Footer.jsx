@@ -6,7 +6,7 @@ function Footer() {
   return ( 
     <footer className="w-full h-fit p-8 rounded-t-0 bg-gray-700 dark:bg-black">
       <div className="flex flex-col w-full h-full">
-        <div className="flex flex-col mt-8 space-y-4 lg:space-y-0 lg:flex-row items-center h-full justify-around">
+        <div className="flex flex-col mt-8 space-y-4 md:space-y-0 md:flex-row items-center h-full justify-around">
           <div className="flex flex-col">
             <License/>
           </div>

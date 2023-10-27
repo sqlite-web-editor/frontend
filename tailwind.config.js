@@ -6,8 +6,12 @@ module.exports = {
     hoverOnlyWhenSupported: true,
   },
   theme: {
-    extend: {},
+    extend: {
+      screens: {
+        'usm': '320px',
+        'xs': '450px'
+      },
+    },
   },
   plugins: [],
 }
-

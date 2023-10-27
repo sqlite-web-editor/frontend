@@ -1,6 +1,7 @@
 import axios from "axios";
+import { BACKEND_IP, BACKEND_PROTOCOL, BACKEND_PORT } from "../app-config";
 
-export const serverUrl = "http://192.168.1.107:8000"
+export const serverUrl = `${BACKEND_PROTOCOL}://${BACKEND_IP}:${BACKEND_PORT}`;
 
 
 export const isServerOnline = (setServerOnline) => {
@@ -21,6 +22,16 @@ export const getTablesNames = () => {
     },
   });
 }
+
+export const getTableRowCount = (tablename) => {
+  return axios.get(serverUrl + `/sqlite/tables/${tablename}/rowcount`, {
+    withCredentials: true,
+    headers: {
+      "Content-Type": "application/json",
+    },
+  });
+}
+
 
 export const deleteSession = () => {
   return axios.delete(serverUrl + '/session/delete', {
