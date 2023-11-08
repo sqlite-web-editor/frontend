@@ -1,9 +1,27 @@
 import React, { useState, useRef } from "react";
 import { toastError } from "../../utils/toast-error";
 
-
 const maxFileSizeBytes = 1073741824; // 1 гигабайт в байтах (max значение для SQLite)
 
+const b64toBlob = (b64Data, contentType='', sliceSize=512) => {
+  const byteCharacters = atob(b64Data);
+  const byteArrays = [];
+
+  for (let offset = 0; offset < byteCharacters.length; offset += sliceSize) {
+    const slice = byteCharacters.slice(offset, offset + sliceSize);
+
+    const byteNumbers = new Array(slice.length);
+    for (let i = 0; i < slice.length; i++) {
+      byteNumbers[i] = slice.charCodeAt(i);
+    }
+
+    const byteArray = new Uint8Array(byteNumbers);
+    byteArrays.push(byteArray);
+  }
+
+  const blob = new Blob(byteArrays, {type: contentType});
+  return blob;
+}
 
 const getRandomFileName = () => {
   const timestamp = new Date().getTime();
@@ -11,10 +29,9 @@ const getRandomFileName = () => {
   return `${timestamp}_${randomSuffix}`;
 };
 
-
-function FileEditForm({ onChange }) {
+function FileEditForm({ onChange, columnIndex }) {
   const fileInputRef = useRef(null);
-
+  const [fileName, setFileName] = useState(false);
   const handleFileButtonClick = () => {
     fileInputRef.current.click();
   };
@@ -22,14 +39,15 @@ function FileEditForm({ onChange }) {
   const handleFileChange = (event) => {
     const file = event.target.files[0];
     if (file) {
-      onChange(file);
+      onChange(event, columnIndex);
+      setFileName(file.name);
     }
   };
 
   return (
     <div>
-      <button className="stdbutton" onClick={handleFileButtonClick}>
-        Выберите файл
+      <button className="stdbutton w-[168px] text-ellipsis" onClick={handleFileButtonClick}>
+        {fileName? fileName: "Выберите файл"}
       </button>
       <input
         type="file"
@@ -43,33 +61,34 @@ function FileEditForm({ onChange }) {
 
 function FileDownloadForm({ cellValue }) {
   const handleClick = () => {
-    const blob = new Blob([cellValue], { type: 'application/octet-stream' });
+    const blob = b64toBlob(cellValue)
     const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.style.display = 'none';
+    const a = document.createElement("a");
+    a.style.display = "none";
     a.href = url;
     a.download = getRandomFileName();
     document.body.appendChild(a);
     a.click();
     window.URL.revokeObjectURL(url);
-  }
+  };
 
   return (
-    <button className="stdbutton" onClick={handleClick}>
+    <button className="stdbutton w-[168px]" onClick={handleClick}>
       Скачать файл
     </button>
   );
 }
 
-
-function FileForm({ isEditable, cellValue }) {
+function FileForm({ isEditable, cellValue, handleCellChange, columnIndex }) {
   const [file, setFile] = useState(null);
   const handleFileChange = (e) => {
     const selectedFile = e.target.files[0];
 
     if (selectedFile) {
       if (selectedFile.size >= maxFileSizeBytes) {
-        toastError("Размер файла больше или равен 1 гигабайту. Выберите файл меньшего размера.");
+        toastError(
+          "Размер файла больше или равен 1 гигабайту. Выберите файл меньшего размера."
+        );
       } else {
         setFile(selectedFile);
       }
@@ -78,8 +97,11 @@ function FileForm({ isEditable, cellValue }) {
 
   return (
     <div>
-      {isEditable? <FileEditForm/>
-        : <FileDownloadForm cellValue={cellValue}/>}
+      {isEditable ? (
+        <FileEditForm columnIndex={columnIndex} onChange={handleCellChange}/>
+      ) : (
+        <FileDownloadForm cellValue={cellValue} />
+      )}
     </div>
   );
 }

@@ -49,7 +49,7 @@ td div span {
     min-width: 45px;
     max-height: 200px;
     overflow: auto;
-    @apply w-full p-2 dark:dark-overflow-style;
+    @apply w-full p-2 overflow-style dark:dark-overflow-style;
 }
 
 

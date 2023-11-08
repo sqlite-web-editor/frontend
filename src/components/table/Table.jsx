@@ -48,7 +48,7 @@ const TableCell = ({ rowIndex, columnIndex, cellValue, isEditable, editedData, h
         <span>
           {
             columnType === "BLOB" ? (
-              <FileForm isEditable={isEditable} cellValue={cellValue}/>
+              <FileForm handleCellChange={handleCellChange} columnIndex={columnIndex} isEditable={isEditable} cellValue={cellValue}/>
             ):
               isEditable ? (
                 columnType === "BOOLEAN" ? (
@@ -132,7 +132,7 @@ const DeleteButton = ({ rowIndex, handleDeleteRow }) => {
 };
 
 const TableRow = ({ row, rowIndex, columns, editableRowIndex, editedData, handleCellChange, handleEditRow, handleDeleteRow, handleCancelEdit }) => {
-  const isEditable = editableRowIndex === rowIndex;
+  let isEditable = editableRowIndex === rowIndex;
   let isNew = false;
   return (
     <tr key={rowIndex}>
@@ -323,33 +323,55 @@ const Table = ({ columns, tableData, tableName, decTableRowCount, incTableRowCou
   const handleCellChange = (e, columnIndex) => {
     const updatedEditedData = [...editedData];
     const column = columns[columnIndex];
+    const datatype = column.type;
+    let value = undefined;
 
-    let value = e.target.type === "checkbox" ? e.target.checked : e.target.value;
-    if (column.type === "INTEGER" && value !== "" && value !== "-") {
-      try {
-        let bigIntValue = BigInt(value);
+    if (datatype==="BLOB") {
+      const file = e.target.files[0];
+      const reader = new FileReader();
+      
+      reader.onload = () => {
+        const base64String = reader.result.split(',')[1];
+        updatedEditedData[columnIndex] = base64String;
+        setEditedData(updatedEditedData);
+      };
+      
+      reader.onerror = (error) => {
+        toastError(`Произошла ошибка при чтении файла ${error}`)
+      };
+      
+      reader.readAsDataURL(file);
+      
+    }
+    // for text data (non binary data, like boolean, numbers and strings)
+    else {
+        value = e.target.type === "checkbox" ? e.target.checked : e.target.value;
+      if (column.type === "INTEGER" && value !== "" && value !== "-") {
+        try {
+          let bigIntValue = BigInt(value);
 
-        if (bigIntValue > MAX_SAFE_SQLITE_INTEGER) {
-          toastError(`Максимальное числовое значение поддерживаемое sqlite - ${MAX_SAFE_SQLITE_INTEGER.toString()}`)
-          throw new Error();
-        }
-
-        else { 
-          if (bigIntValue < MIN_SAFE_SQLITE_INTEGER) {
-            toastError(`Минимальное числовое значение поддерживаемое sqlite - ${MIN_SAFE_SQLITE_INTEGER.toString()}`)
+          if (bigIntValue > MAX_SAFE_SQLITE_INTEGER) {
+            toastError(`Максимальное числовое значение поддерживаемое sqlite - ${MAX_SAFE_SQLITE_INTEGER.toString()}`)
             throw new Error();
           }
+
+          else { 
+            if (bigIntValue < MIN_SAFE_SQLITE_INTEGER) {
+              toastError(`Минимальное числовое значение поддерживаемое sqlite - ${MIN_SAFE_SQLITE_INTEGER.toString()}`)
+              throw new Error();
+            }
+          }
+
+          value = bigIntValue.toString();
         }
+        catch {
+          value = editedData[columnIndex];
+        }
+      }
 
-        value = bigIntValue.toString();
-      }
-      catch {
-        value = editedData[columnIndex];
-      }
+      updatedEditedData[columnIndex] = value;
+      setEditedData(updatedEditedData);
     }
-
-    updatedEditedData[columnIndex] = value;
-    setEditedData(updatedEditedData);
   };
 
   const handleDeleteRow = (rowIndex) => {
