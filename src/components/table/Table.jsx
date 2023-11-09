@@ -13,7 +13,7 @@ const TableColumnNameCell = ({ column }) => {
   const meta = [
     column.type ? column.type: "нет типа",
     column.notnull ? "не пустой": false,
-    column.dflt_value ? column.dflt_value: false,
+    column.dflt_value ? `по умолчанию - ${column.dflt_value}`: false,
     column.pk ? "первичный ключ": false,
     column.unique ? "уникальный": false,
     column.autoincrement ? "автоинкремент": false
@@ -54,7 +54,7 @@ const TableCell = ({ rowIndex, columnIndex, cellValue, isEditable, editedData, h
                 columnType === "BOOLEAN" ? (
                   <input
                     type="checkbox"
-                    checked={editedData[columnIndex]}
+                    checked={editedData[columnIndex]==="1"}
                     onChange={(e) => handleCellChange(e, columnIndex)}
                   />
                 ) : (
@@ -133,7 +133,6 @@ const DeleteButton = ({ rowIndex, handleDeleteRow }) => {
 
 const TableRow = ({ row, rowIndex, columns, editableRowIndex, editedData, handleCellChange, handleEditRow, handleDeleteRow, handleCancelEdit }) => {
   let isEditable = editableRowIndex === rowIndex;
-  let isNew = false;
   return (
     <tr key={rowIndex}>
       {row.map((cell, columnIndex) => (

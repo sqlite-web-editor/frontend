@@ -154,6 +154,7 @@ const App = () => {
           <footer className='h-12 w-full bg-gray-50 dark:bg-gray-950 rounded-full -my-7 inline-block'/>
           <Footer/>
         </div>
+        <div className='bg-amber-200 dark:bg-amber-800 hidden'/>
       </div>
       )
     }
