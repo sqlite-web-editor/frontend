@@ -1,16 +1,13 @@
 import "../../index.css";
 import "./TableButton.css"
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { TableButton } from "./TableButton";
-import { useScrollbar } from "../../hooks";
 
 
 export const TableList = ({tablesArray, setCurrentTable}) => {
   const [tableHTMLElement, setTableHTMLElement] = useState(undefined);
-  const tableListRef = useRef(null);
-  useScrollbar(tableListRef, true)
   return (
-    <div ref={tableListRef} className="bg-1 rounded-xl shadow-lg w-full">
+    <div className="bg-1 rounded-xl shadow-lg w-full overflow-auto overflow-style dark:dark-overflow-style">
       <div className="flex items-center justify-between space-x-4">
         {tablesArray.map((tableName,) => {
           return (

@@ -46,7 +46,7 @@ function FileEditForm({ onChange, columnIndex }) {
 
   return (
     <div>
-      <button className="stdbutton w-[168px] text-ellipsis" onClick={handleFileButtonClick}>
+      <button className="stdbutton shadow-md hover:shadow-md w-[190px] text-ellipsis" onClick={handleFileButtonClick}>
         {fileName? fileName: "Выберите файл"}
       </button>
       <input
@@ -71,11 +71,17 @@ function FileDownloadForm({ cellValue }) {
     a.click();
     window.URL.revokeObjectURL(url);
   };
-
+  if (cellValue) {
+    return (
+      <button className="stdbutton w-[190px] shadow-sm hover:shadow-md" onClick={handleClick}>
+        Скачать файл
+      </button>
+    );
+  }
   return (
-    <button className="stdbutton w-[168px]" onClick={handleClick}>
-      Скачать файл
-    </button>
+    <div>
+      Нет файла
+    </div>
   );
 }
 
